@@ -1,0 +1,122 @@
+/* Cleaned Auth page styles matching dark theme */
+.auth-container{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 24px;
+}
+
+.auth-card{
+  width:460px;
+  max-width:92%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius:18px;
+  padding:34px 28px;
+  box-shadow: 0 26px 70px rgba(3,7,18,0.65);
+  text-align:left;
+}
+
+.auth-title{
+  font-size:24px;
+  margin:0 0 18px 0;
+  color: var(--text-h);
+  text-align:center;
+  user-select:none;
+}
+
+.form-group{ margin-bottom:14px; }
+
+.form-label{ display:block; color:var(--text); margin-bottom:8px; font-size:14px; }
+
+.form-input{
+  display:block;
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(10,12,16,0.5);
+  color: var(--text);
+  outline: none;
+  box-sizing:border-box;
+  font-size:15px;
+  transition: box-shadow .12s ease, border-color .12s ease, transform .08s ease;
+}
+
+.form-input::placeholder{ color: rgba(203,213,225,0.6); }
+
+.form-input:focus{ box-shadow: 0 8px 30px rgba(6,182,212,0.06); border-color: var(--accent-border); transform: translateY(-2px); }
+
+.primary-btn{
+  width:100%;
+  padding:12px 14px;
+  border-radius:12px;
+  border:none;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color:white;
+  font-size:15px;
+  cursor:pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.primary-btn:hover{ transform: translateY(-3px); box-shadow: 0 18px 40px rgba(6,182,212,0.08); }
+
+.google-btn{
+  width:100%;
+  margin-top:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  background: linear-gradient(180deg,#ffffff,#f3f3f3);
+  color: #0b0c10;
+  font-weight:600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(3,7,18,0.35);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.google-btn:hover{ transform: translateY(-3px); box-shadow: 0 22px 50px rgba(3,7,18,0.4); }
+
+.google-btn::before {
+  content: none !important;
+}
+
+.google-btn svg {
+  display: inline-block;
+}
+
+.secondary-link{
+  display:block;
+  text-align:center;
+  margin-top:12px;
+  color: var(--text);
+  text-decoration:none;
+  padding:10px;
+  border-radius:8px;
+}
+
+.secondary-link:hover{ background: rgba(255,255,255,0.02); color: var(--accent-2); }
+
+.auth-overlay{
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 18% 20%, rgba(124,58,237,0.24), transparent 18%),
+              radial-gradient(circle at 88% 82%, rgba(6,182,212,0.18), transparent 20%);
+  pointer-events: none;
+}
+
+.landing-hero {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 48px 20px;
+  background: linear-gradient(145deg, rgba(6,182,212,0.12), rgba(124,58,237,0.12));
+}

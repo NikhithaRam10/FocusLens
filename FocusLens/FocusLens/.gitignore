@@ -1,0 +1,25 @@
+# dependencies
+client/node_modules/
+server/node_modules/
+
+# environment
+.env
+.env.*
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+
+# build
+dist/
+build/
+
+# logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
