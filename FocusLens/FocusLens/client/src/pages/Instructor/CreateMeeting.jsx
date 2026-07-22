@@ -16,7 +16,8 @@ function CreateMeeting() {
 
   const [meetingLink] = useState(() => {
     const id = Math.random().toString(36).substring(2, 10);
-    return `http://localhost:5173/meet/${id}`;
+    const origin = window.location.origin;
+    return `${origin}/meet/${id}`;
   });
 
   const copyCode = () => {
@@ -56,7 +57,7 @@ const handleCreateMeeting = async () => {
     const token = localStorage.getItem("token");
 
     const res = await axios.post(
-      "http://localhost:5000/api/meetings/create",
+      `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/meetings/create`,
       {
         title: meetingName,
         subject,
@@ -93,21 +94,20 @@ const handleCreateMeeting = async () => {
       <div className="dashboard-shell">
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            position: "relative",
+            paddingTop: "48px",
             marginBottom: "24px",
-            gap: "12px",
+            minHeight: "70px",
           }}
         >
-          <div>
+          <button className="primary-btn top-left-pill-btn" style={{ position: "absolute", top: 0, left: 0 }} onClick={() => navigate("/instructor/meetings")}>
+            ← Back
+          </button>
+
+          <div style={{ paddingTop: "4px" }}>
             <h2 className="page-title">Create a New Meeting</h2>
             <p className="muted">Prepare a live session and generate the meeting details to share.</p>
           </div>
-
-          <button className="secondary-btn" onClick={() => navigate("/instructor/meetings")}>
-            ← Back
-          </button>
         </div>
 
         <div className="ui-card" style={{ maxWidth: "900px", margin: "0 auto" }}>

@@ -13,6 +13,9 @@ import StudentDashboard from "../pages/Student/Dashboard";
 
 import CreateMeeting from "../pages/Instructor/CreateMeeting";
 import InstructorMeetings from "../pages/Instructor/Meetings";
+import LiveClass from "../pages/Instructor/LiveClass";
+import StudentLive from "../pages/Student/LiveClass";
+import MeetRedirect from "../pages/MeetRedirect";
 import StudentMeetings from "../pages/Student/Meetings";
 
 function AppRoutes() {
@@ -41,8 +44,11 @@ function AppRoutes() {
 
         <Route path="/instructor-meetings" element={<InstructorMeetings />} />
         <Route path="/instructor/meetings" element={<InstructorMeetings />} />
+        <Route path="/instructor/live/:meetingCode" element={<LiveClass />} />
 
         <Route path="/student-meetings" element={<StudentMeetings />} />
+        <Route path="/student/live/:meetingCode" element={<StudentLive />} />
+        <Route path="/meet/:linkId" element={<MeetRedirect />} />
         <Route path="/student/meetings" element={<StudentMeetings />} />
       </Routes>
     </BrowserRouter>

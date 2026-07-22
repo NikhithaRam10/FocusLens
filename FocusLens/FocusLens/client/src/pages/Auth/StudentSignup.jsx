@@ -23,7 +23,7 @@ function StudentSignup() {
   const handleSignup = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/signup",
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/auth/signup`,
         {
           ...formData,
           role: "student",

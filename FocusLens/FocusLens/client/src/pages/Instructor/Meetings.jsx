@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 function Meetings() {
   const navigate = useNavigate();
   const [meetings, setMeetings] = useState([]);
@@ -15,7 +16,7 @@ const loadMeetings = async () => {
     const token = localStorage.getItem("token");
 
     const res = await axios.get(
-      "http://localhost:5000/api/meetings/my",
+      `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/meetings/my`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -31,17 +32,82 @@ const loadMeetings = async () => {
   }
 };
 
-  const startMeeting = (meeting) => {
-  alert(
-    `Starting Meeting\n\nMeeting: ${meeting.title}\n\nCode: ${meeting.meetingCode}`
-  );
+  const startMeeting = async (meeting) => {
 
-  // Later:
-  // navigate(`/meeting/${meeting.meetingCode}`);
+  try {
+
+    const token = localStorage.getItem("token");
+
+    await axios.put(
+
+      `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/meetings/start/${meeting._id}`,
+
+      {},
+
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+
+    );
+
+    loadMeetings();
+    navigate(`/instructor/live/${meeting.meetingCode}`);
+
+  } catch (err) {
+
+    console.error(err);
+    alert(err.response?.data?.message || err.message || "Unable to start meeting");
+
+  }
+
 };
 
-  const editMeeting = (meeting) => {
-  alert(`Edit: ${meeting.title}`);
+ const editMeeting = async (meeting) => {
+
+  const title = prompt("Meeting Title", meeting.title);
+  if (title === null) return;
+
+  const subject = prompt("Subject", meeting.subject || "");
+  if (subject === null) return;
+
+  const description = prompt(
+    "Description",
+    meeting.description || ""
+  );
+  if (description === null) return;
+
+  try {
+
+    const token = localStorage.getItem("token");
+
+    await axios.put(
+      `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/meetings/${meeting._id}`,
+      {
+        title,
+        subject,
+        description,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert("Meeting Updated");
+
+    loadMeetings();
+
+  } catch (err) {
+
+    console.log(err);
+
+    alert("Update Failed");
+
+  }
+
 };
 
 const deleteMeeting = async (meetingId) => {
@@ -51,7 +117,7 @@ const deleteMeeting = async (meetingId) => {
     const token = localStorage.getItem("token");
 
     const res = await axios.delete(
-      `http://localhost:5000/api/meetings/${meetingId}`,
+      `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/meetings/${meetingId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -83,25 +149,24 @@ const deleteMeeting = async (meetingId) => {
       <div className="dashboard-shell">
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            position: "relative",
+            paddingTop: "48px",
             marginBottom: "24px",
-            gap: "12px",
+            minHeight: "70px",
           }}
         >
-          <div>
-            <h2 className="page-title">Your Meetings</h2>
-            <p className="muted">Manage all your scheduled sessions and start live classes.</p>
-          </div>
-
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button className="primary-btn" onClick={() => navigate("/instructor/create-meeting")}>
-              + New Meeting
-            </button>
-            <button className="secondary-btn" onClick={() => navigate("/instructor/dashboard")}>
+          <div style={{ display: "flex", gap: "8px", position: "absolute", top: 0, left: 0 }}>
+            <button className="primary-btn top-left-pill-btn" onClick={() => navigate("/instructor/dashboard")}>
               ← Back
             </button>
+            <button className="primary-btn top-left-pill-btn" onClick={() => navigate("/instructor/create-meeting")}>
+              + New Meeting
+            </button>
+          </div>
+
+          <div style={{ paddingTop: "4px" }}>
+            <h2 className="page-title">Your Meetings</h2>
+            <p className="muted">Manage all your scheduled sessions and start live classes.</p>
           </div>
         </div>
 
@@ -187,20 +252,35 @@ const deleteMeeting = async (meetingId) => {
       }}
     >
       <strong>Code:</strong> {meeting.meetingCode}
+      <p className="muted" style={{marginTop:"10px"}}>
+  <strong>Meeting Link:</strong>
+</p>
+
+<input
+  value={meeting.meetingLink}
+  readOnly
+  className="form-input"
+/>
     </div>
 
     <div
       className="card-actions"
       style={{ gap: "8px", flexWrap: "wrap" }}
     >
-
       <button
         className="primary-btn"
         onClick={() => startMeeting(meeting)}
+        disabled={meeting.status === "Active"}
       >
-        Start Meeting
+        {meeting.status === "Active" ? "Live Now" : "Start Meeting"}
       </button>
 
+      <button
+        className="secondary-btn"
+        onClick={() => navigate(`/instructor/live/${meeting.meetingCode}`)}
+      >
+        Open Room
+      </button>
       <button
         className="secondary-btn"
         onClick={() => editMeeting(meeting)}

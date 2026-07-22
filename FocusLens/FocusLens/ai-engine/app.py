@@ -1,58 +1,80 @@
+import sys
+from pathlib import Path
+
 import cv2
-import mediapipe as mp
+import numpy as np
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
-# Initialize MediaPipe Face Detection
-mp_face_detection = mp.solutions.face_detection
-mp_drawing = mp.solutions.drawing_utils
+sys.path.append(str(Path(__file__).resolve().parent))
 
-face_detection = mp_face_detection.FaceDetection(
-    model_selection=0,
-    min_detection_confidence=0.6
-)
+from blink import BlinkDetector
+from detector import FaceDetector
+from headpose import HeadPoseDetector
+from focus import FocusCalculator
+from gaze import EyeGazeDetector
+from timer import ScreenTimer
 
-# Open Webcam
-cap = cv2.VideoCapture(0)
+app = Flask(__name__)
+CORS(app)
 
-while True:
+detector = FaceDetector()
+blink = BlinkDetector()
+headpose = HeadPoseDetector()
+gaze = EyeGazeDetector()
+timer = ScreenTimer()
+focus = FocusCalculator()
 
-    success, frame = cap.read()
 
-    if not success:
-        break
+@app.get('/health')
+def health():
+    return jsonify({'status': 'ok'})
 
-    # Flip for mirror view
+
+@app.post('/analyze')
+def analyze():
+    if 'image' not in request.files or not request.files['image'].filename:
+        return jsonify({'error': 'No image uploaded'}), 400
+
+    file_storage = request.files['image']
+    image_bytes = np.frombuffer(file_storage.read(), np.uint8)
+    frame = cv2.imdecode(image_bytes, cv2.IMREAD_COLOR)
+
+    if frame is None:
+        return jsonify({'error': 'Invalid image upload'}), 400
+
     frame = cv2.flip(frame, 1)
+    results = detector.detect(frame)
 
-    # Convert BGR → RGB
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    if not results.multi_face_landmarks:
+        return jsonify({
+            'focus_score': 0.0,
+            'status': 'No face detected',
+            'head_direction': 'Unknown',
+            'eye_direction': 'Unknown',
+            'screen_time': 0.0,
+        })
 
-    # Detect Faces
-    results = face_detection.process(rgb_frame)
+    landmarks = results.multi_face_landmarks[0].landmark
+    ear, blinks = blink.detect_blink(landmarks)
+    direction, head_score = headpose.get_head_direction(landmarks)
+    gaze_direction, eye_score = gaze.get_gaze(landmarks)
+    face_visible = True
 
-    if results.detections:
+    screen_time = timer.update(face_visible, direction, gaze_direction)
+    face_score = 1.0 if face_visible else 0.0
+    focus_score = focus.calculate(face_score, head_score, eye_score, screen_time)
 
-        for detection in results.detections:
+    return jsonify({
+        'focus_score': round(float(focus_score), 2),
+        'status': 'Face detected',
+        'head_direction': direction,
+        'eye_direction': gaze_direction,
+        'screen_time': round(float(screen_time), 2),
+        'ear': round(float(ear), 3),
+        'blinks': int(blinks),
+    })
 
-            mp_drawing.draw_detection(frame, detection)
 
-            score = int(
-                detection.score[0] * 100
-            )
-
-            cv2.putText(
-                frame,
-                f"Face: {score}%",
-                (20,40),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (0,255,0),
-                2
-            )
-
-    cv2.imshow("FocusLens - Face Detection", frame)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5002, debug=False)

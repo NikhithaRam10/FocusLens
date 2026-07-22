@@ -1,0 +1,18 @@
+# config.py
+
+# Blink Detection
+EAR_THRESHOLD = 0.21
+CLOSED_FRAMES = 2
+
+# Head Pose
+HEAD_LEFT_THRESHOLD = -0.03
+HEAD_RIGHT_THRESHOLD = 0.03
+
+# Colors (BGR)
+GREEN = (0, 255, 0)
+RED = (0, 0, 255)
+BLUE = (255, 0, 0)
+
+# Font
+FONT_SCALE = 0.8
+THICKNESS = 2
